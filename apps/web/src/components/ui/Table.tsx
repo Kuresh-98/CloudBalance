@@ -3,52 +3,69 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export const TableContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className, ...props }) => (
-  <div className={twMerge(clsx("border border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white w-full", className))} {...props}>
-    <div className="overflow-x-auto">
-      {children}
-    </div>
+  <div className={twMerge(clsx("w-full overflow-auto border-2 border-ink shadow-brutal rounded-lg bg-surface", className))} {...props}>
+    {children}
   </div>
 );
 
-export const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = ({ children, className, ...props }) => (
-  <table className={twMerge(clsx("w-full text-left border-collapse", className))} {...props}>
-    {children}
-  </table>
+export const Table = React.forwardRef<HTMLTableElement, React.TableHTMLAttributes<HTMLTableElement>>(
+  ({ className, ...props }, ref) => (
+    <table
+      ref={ref}
+      className={twMerge(clsx("w-full caption-bottom text-sm", className))}
+      {...props}
+    />
+  )
 );
+Table.displayName = "Table";
 
-export const TableHeader: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, className, ...props }) => (
-  <thead className={twMerge(clsx("bg-slate-50 border-b border-slate-200 select-none", className))} {...props}>
-    {children}
-  </thead>
+export const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
+  ({ className, ...props }, ref) => (
+    <thead ref={ref} className={twMerge(clsx("[&_tr]:border-b-2 [&_tr]:border-ink bg-surfaceMuted", className))} {...props} />
+  )
 );
+TableHeader.displayName = "TableHeader";
 
-export const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({ children, className, ...props }) => (
-  <tbody className={twMerge(clsx("divide-y divide-slate-100", className))} {...props}>
-    {children}
-  </tbody>
+export const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
+  ({ className, ...props }, ref) => (
+    <tbody
+      ref={ref}
+      className={twMerge(clsx("[&_tr:last-child]:border-0", className))}
+      {...props}
+    />
+  )
 );
+TableBody.displayName = "TableBody";
 
-export const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({ children, className, ...props }) => (
-  <tr className={twMerge(clsx("hover:bg-slate-50/50 transition-colors", className))} {...props}>
-    {children}
-  </tr>
+export const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
+  ({ className, ...props }, ref) => (
+    <tr
+      ref={ref}
+      className={twMerge(clsx("border-b-2 border-ink transition-colors hover:bg-surfaceMuted/50 data-[state=selected]:bg-surfaceMuted even:bg-surfaceMuted/30", className))}
+      {...props}
+    />
+  )
 );
+TableRow.displayName = "TableRow";
 
-export const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> = ({ children, className, ...props }) => (
-  <th className={twMerge(clsx("px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider", className))} {...props}>
-    {children}
-  </th>
+export const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(
+  ({ className, ...props }, ref) => (
+    <th
+      ref={ref}
+      className={twMerge(clsx("h-12 px-4 text-left align-middle font-bold text-ink uppercase tracking-wider text-xs", className))}
+      {...props}
+    />
+  )
 );
+TableHead.displayName = "TableHead";
 
-export const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement> & { isNumeric?: boolean }> = ({ children, className, isNumeric = false, ...props }) => (
-  <td
-    className={twMerge(clsx(
-      "px-6 py-4 text-sm font-body text-slate-700",
-      isNumeric && "font-mono font-medium tracking-tight text-slate-900",
-      className
-    ))}
-    {...props}
-  >
-    {children}
-  </td>
+export const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement> & { isNumeric?: boolean }>(
+  ({ className, isNumeric, ...props }, ref) => (
+    <td
+      ref={ref}
+      className={twMerge(clsx("p-4 align-middle", isNumeric && "font-mono font-medium", className))}
+      {...props}
+    />
+  )
 );
+TableCell.displayName = "TableCell";

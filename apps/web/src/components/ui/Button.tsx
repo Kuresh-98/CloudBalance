@@ -2,8 +2,8 @@ import React from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'savings' | 'alert' | 'warning' | 'info';
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'savings' | 'alert' | 'warning' | 'info' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   isPill?: boolean;
 }
@@ -16,15 +16,16 @@ export const Button: React.FC<ButtonProps> = ({
   isPill = false,
   ...props
 }) => {
-  const baseStyle = "inline-flex items-center justify-center gap-2 font-display font-semibold transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+  const baseStyle = "inline-flex items-center justify-center gap-2 font-display font-bold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:pointer-events-none border-2 border-ink shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none";
   
   const variants = {
-    primary: "bg-gradient-to-r from-primary to-primary-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-primary",
-    secondary: "bg-white text-ink border border-slate-200 shadow-sm hover:shadow-premium hover:border-slate-300 focus:ring-slate-200",
-    savings: "bg-gradient-to-r from-savings to-savings-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-savings",
-    alert: "bg-gradient-to-r from-alert to-alert-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-alert",
-    warning: "bg-gradient-to-r from-warning to-warning-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-warning",
-    info: "bg-gradient-to-r from-info to-info-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-info",
+    primary: "bg-ink text-white",
+    secondary: "bg-surface text-ink",
+    savings: "bg-savings text-white",
+    alert: "bg-alert text-white",
+    warning: "bg-warning text-ink", // yellow badge needs dark text
+    info: "bg-info text-white",
+    ghost: "bg-transparent text-ink border-transparent shadow-none hover:bg-surfaceMuted hover:shadow-brutal hover:border-ink hover:-translate-x-[2px] hover:-translate-y-[2px] active:translate-x-[0px] active:translate-y-[0px] active:shadow-none",
   };
 
   const sizes = {
@@ -35,13 +36,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const roundedStyle = isPill ? "rounded-full" : sizes[size].split(' ').pop();
 
-  // Strip the explicit rounded from sizes if isPill is true
   const finalSize = isPill ? sizes[size].replace(/rounded-(md|lg|xl)/, '') : sizes[size];
 
   return (
     <button
       className={twMerge(clsx(
-        baseStyle,
+        variant !== 'ghost' && baseStyle,
+        variant === 'ghost' && "inline-flex items-center justify-center gap-2 font-display font-bold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:pointer-events-none border-2",
         variants[variant],
         finalSize,
         roundedStyle,

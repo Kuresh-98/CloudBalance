@@ -7,39 +7,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a", // slate-900 for text
-        surface: "#ffffff",
-        surfaceMuted: "#f8fafc", // slate-50
-        primary: {
-          DEFAULT: '#3b82f6', // blue-500
-          hover: '#2563eb', // blue-600
-        },
+        ink: "#0A0A0A",
+        surface: "#FFFFFF",
+        surfaceMuted: "#FAFAF7",
         savings: {
-          DEFAULT: '#10b981', // emerald-500
-          hover: '#059669', // emerald-600
+          DEFAULT: "#1E8E3E",
+          hover: "#177631",
         },
         alert: {
-          DEFAULT: '#ef4444', // red-500
-          hover: '#dc2626', // red-600
+          DEFAULT: "#D93025",
+          hover: "#B3271E",
         },
         warning: {
-          DEFAULT: '#f59e0b', // amber-500
-          hover: '#d97706', // amber-600
+          DEFAULT: "#F2B705",
+          hover: "#D4A004",
         },
         info: {
-          DEFAULT: '#0ea5e9', // sky-500
-          hover: '#0284c7', // sky-600
+          DEFAULT: "#1A73E8",
+          hover: "#155CBF",
         },
-        textMuted: "#64748b", // slate-500
+        textMuted: "#5F6368",
       },
       fontFamily: {
-        display: ["'Inter'", "sans-serif"],
+        display: ["'Space Grotesk'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
-        mono: ["'JetBrains Mono'", "monospace"],
+        mono: ["'IBM Plex Mono'", "monospace"],
       },
       boxShadow: {
-        'premium': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 3px rgba(0,0,0,0.02)',
-        'premium-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 5px rgba(0,0,0,0.03)',
+        'brutal': '4px 4px 0px var(--tw-shadow-color)',
+        'brutal-hover': '2px 2px 0px var(--tw-shadow-color)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',

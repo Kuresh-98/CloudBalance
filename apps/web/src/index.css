@@ -6,19 +6,12 @@
   body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: theme('colors.surface');
+    background-image: radial-gradient(circle, theme('colors.ink') 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+    color: theme('colors.ink');
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* Glassmorphism Utilities */
-@layer utilities {
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20;
-  }
-  .glass-dark {
-    @apply bg-slate-900/80 backdrop-blur-md border border-slate-700/50;
   }
 }
