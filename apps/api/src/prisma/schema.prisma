@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Team {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  monthlyBudget  Decimal?   @map("monthly_budget") @db.Decimal(12, 2)
+  createdAt      DateTime?  @default(now()) @map("created_at") @db.Timestamptz
+  resources      Resource[]
+
+  @@map("teams")
+}
+
+model Resource {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resourceUid     String           @map("resource_uid")
+  teamId          String?          @map("team_id") @db.Uuid
+  service         String
+  region          String
+  instanceType    String?          @map("instance_type")
+  status          String
+  tags            Json?            @default("{}") @db.JsonB
+  createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz
+  
+  team            Team?            @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  usageMetrics    UsageMetric[]
+  costRecords     CostRecord[]
+  recommendations Recommendation[]
+
+  @@map("resources")
+}
+
+model UsageMetric {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resourceId   String?   @map("resource_id") @db.Uuid
+  date         DateTime  @db.Date
+  avgCpuUtil   Decimal?  @map("avg_cpu_util") @db.Decimal(5, 2)
+  avgMemUtil   Decimal?  @map("avg_mem_util") @db.Decimal(5, 2)
+  networkInGb  Decimal?  @map("network_in_gb") @db.Decimal(10, 2)
+  networkOutGb Decimal?  @map("network_out_gb") @db.Decimal(10, 2)
+
+  resource     Resource? @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId, date], map: "idx_usage_metrics_resource_date")
+  @@map("usage_metrics")
+}
+
+model CostRecord {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resourceId    String?   @map("resource_id") @db.Uuid
+  date          DateTime  @db.Date
+  usageQuantity Decimal?  @map("usage_quantity") @db.Decimal(12, 4)
+  unblendedCost Decimal   @map("unblended_cost") @db.Decimal(12, 4)
+  currency      String?   @default("USD")
+
+  resource      Resource? @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId, date], map: "idx_cost_records_resource_date")
+  @@map("cost_records")
+}
+
+model Recommendation {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resourceId              String?   @map("resource_id") @db.Uuid
+  type                    String
+  title                   String
+  rationale               String
+  estimatedMonthlySavings Decimal   @map("estimated_monthly_savings") @db.Decimal(12, 2)
+  confidence              String
+  status                  String?   @default("open")
+  createdAt               DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  resource                Resource? @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([status], map: "idx_recommendations_status")
+  @@map("recommendations")
+}
