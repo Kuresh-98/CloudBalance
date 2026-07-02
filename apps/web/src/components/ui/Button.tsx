@@ -1,10 +1,11 @@
 import React from 'react';
 import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'savings' | 'alert' | 'warning' | 'info';
   size?: 'sm' | 'md' | 'lg';
-  isPill?: boolean; // Reserved for the one hero CTA
+  isPill?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -15,34 +16,37 @@ export const Button: React.FC<ButtonProps> = ({
   isPill = false,
   ...props
 }) => {
-  const baseStyle = "font-bold font-display border-2 border-ink shadow-neobrutal transition-all duration-100 active:translate-x-[2px] active:translate-y-[2px] active:shadow-neobrutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#0A0A0A] focus:outline-none select-none text-center inline-flex items-center justify-center gap-2";
+  const baseStyle = "inline-flex items-center justify-center gap-2 font-display font-semibold transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
   
   const variants = {
-    primary: "bg-ink text-white hover:bg-neutral-800",
-    secondary: "bg-white text-ink hover:bg-surfaceMuted",
-    savings: "bg-savings text-white hover:bg-emerald-800",
-    alert: "bg-alert text-white hover:bg-red-800",
-    warning: "bg-warning text-ink hover:bg-amber-500",
-    info: "bg-info text-white hover:bg-blue-800",
+    primary: "bg-gradient-to-r from-primary to-primary-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-primary",
+    secondary: "bg-white text-ink border border-slate-200 shadow-sm hover:shadow-premium hover:border-slate-300 focus:ring-slate-200",
+    savings: "bg-gradient-to-r from-savings to-savings-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-savings",
+    alert: "bg-gradient-to-r from-alert to-alert-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-alert",
+    warning: "bg-gradient-to-r from-warning to-warning-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-warning",
+    info: "bg-gradient-to-r from-info to-info-hover text-white shadow-premium hover:shadow-premium-hover focus:ring-info",
   };
 
   const sizes = {
-    sm: "px-3 py-1.5 text-xs rounded-sm",
-    md: "px-5 py-2.5 text-sm rounded-md",
-    lg: "px-7 py-3 text-base rounded-lg",
+    sm: "px-3 py-1.5 text-xs rounded-md",
+    md: "px-5 py-2.5 text-sm rounded-lg",
+    lg: "px-7 py-3 text-base rounded-xl",
   };
 
-  const pillStyle = isPill ? "rounded-full" : "";
+  const roundedStyle = isPill ? "rounded-full" : sizes[size].split(' ').pop();
+
+  // Strip the explicit rounded from sizes if isPill is true
+  const finalSize = isPill ? sizes[size].replace(/rounded-(md|lg|xl)/, '') : sizes[size];
 
   return (
     <button
-      className={clsx(
+      className={twMerge(clsx(
         baseStyle,
         variants[variant],
-        sizes[size],
-        pillStyle,
+        finalSize,
+        roundedStyle,
         className
-      )}
+      ))}
       {...props}
     >
       {children}

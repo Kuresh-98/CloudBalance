@@ -6,46 +6,19 @@
   body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: #FAFAF7;
-    color: #0A0A0A;
-    background-image: radial-gradient(circle, rgba(10, 10, 10, 0.06) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-repeat: repeat;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom Neubrutalist Utilities */
-.neo-border {
-  border: 2px solid #0A0A0A;
-}
-
-.neo-border-thick {
-  border: 3px solid #0A0A0A;
-}
-
-.neo-shadow {
-  box-shadow: 4px 4px 0px 0px #0A0A0A;
-}
-
-.neo-shadow-sm {
-  box-shadow: 2px 2px 0px 0px #0A0A0A;
-}
-
-.neo-shadow-lg {
-  box-shadow: 6px 6px 0px 0px #0A0A0A;
-}
-
-/* Neubrutalist Button Press Effect utility */
-.neo-btn-transition {
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.neo-btn-transition:hover {
-  transform: translate(1px, 1px);
-  box-shadow: 3px 3px 0px 0px #0A0A0A;
-}
-
-.neo-btn-transition:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #0A0A0A;
+/* Glassmorphism Utilities */
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+  .glass-dark {
+    @apply bg-slate-900/80 backdrop-blur-md border border-slate-700/50;
+  }
 }

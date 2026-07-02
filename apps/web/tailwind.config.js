@@ -7,28 +7,54 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0A0A0A",
-        surface: "#FFFFFF",
-        surfaceMuted: "#FAFAF7",
-        savings: "#1E8E3E",
-        alert: "#D93025",
-        warning: "#F2B705",
-        info: "#1A73E8",
-        textMuted: "#5F6368",
+        ink: "#0f172a", // slate-900 for text
+        surface: "#ffffff",
+        surfaceMuted: "#f8fafc", // slate-50
+        primary: {
+          DEFAULT: '#3b82f6', // blue-500
+          hover: '#2563eb', // blue-600
+        },
+        savings: {
+          DEFAULT: '#10b981', // emerald-500
+          hover: '#059669', // emerald-600
+        },
+        alert: {
+          DEFAULT: '#ef4444', // red-500
+          hover: '#dc2626', // red-600
+        },
+        warning: {
+          DEFAULT: '#f59e0b', // amber-500
+          hover: '#d97706', // amber-600
+        },
+        info: {
+          DEFAULT: '#0ea5e9', // sky-500
+          hover: '#0284c7', // sky-600
+        },
+        textMuted: "#64748b", // slate-500
       },
       fontFamily: {
-        display: ["'Space Grotesk'", "sans-serif"],
+        display: ["'Inter'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
-        mono: ["'IBM Plex Mono'", "monospace"],
+        mono: ["'JetBrains Mono'", "monospace"],
       },
       boxShadow: {
-        neobrutal: "4px 4px 0px 0px #0A0A0A",
-        "neobrutal-sm": "2px 2px 0px 0px #0A0A0A",
-        "neobrutal-lg": "6px 6px 0px 0px #0A0A0A",
+        'premium': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 0 3px rgba(0,0,0,0.02)',
+        'premium-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 5px rgba(0,0,0,0.03)',
       },
-      borderWidth: {
-        3: "3px",
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-out forwards',
+        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        }
+      }
     },
   },
   plugins: [],
