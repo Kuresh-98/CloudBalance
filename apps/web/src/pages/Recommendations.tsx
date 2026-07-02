@@ -63,7 +63,7 @@ export const Recommendations: React.FC = () => {
           {['All', 'Idle', 'Unused', 'Right-size'].map(type => (
             <Button 
               key={type}
-              variant={filter === type ? 'ink' : 'ghost'} 
+              variant={filter === type ? 'primary' : 'ghost'} 
               size="sm"
               onClick={() => setFilter(type)}
               className={filter === type ? 'bg-ink text-surface' : ''}

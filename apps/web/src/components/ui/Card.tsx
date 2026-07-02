@@ -6,7 +6,7 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={twMerge(clsx("bg-surfaceMuted border-2 border-ink shadow-brutal rounded-lg text-ink", className))}
+      className={twMerge(clsx("bg-surface border border-border shadow-sm rounded-xl text-text", className))}
       {...props}
     />
   )
@@ -28,7 +28,7 @@ export const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttrib
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={twMerge(clsx("font-display text-2xl font-bold leading-none tracking-tight", className))}
+      className={twMerge(clsx("text-lg font-semibold leading-none tracking-tight text-text", className))}
       {...props}
     />
   )
@@ -39,7 +39,7 @@ export const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTML
   ({ className, ...props }, ref) => (
     <p
       ref={ref}
-      className={twMerge(clsx("text-sm text-textMuted font-body", className))}
+      className={twMerge(clsx("text-sm text-textMuted", className))}
       {...props}
     />
   )

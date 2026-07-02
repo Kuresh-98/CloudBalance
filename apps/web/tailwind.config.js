@@ -7,35 +7,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0A0A0A",
-        surface: "#FFFFFF",
-        surfaceMuted: "#FAFAF7",
+        primary: {
+          DEFAULT: "#2563EB", // Royal Blue
+          hover: "#1D4ED8",
+        },
         savings: {
-          DEFAULT: "#1E8E3E",
-          hover: "#177631",
+          DEFAULT: "#10B981", // Clean Emerald Green
+          hover: "#059669",
         },
         alert: {
-          DEFAULT: "#D93025",
-          hover: "#B3271E",
+          DEFAULT: "#EF4444", // Polished Crimson Red
+          hover: "#DC2626",
         },
         warning: {
-          DEFAULT: "#F2B705",
-          hover: "#D4A004",
+          DEFAULT: "#F59E0B", // Soft Amber Yellow
+          hover: "#D97706",
         },
         info: {
-          DEFAULT: "#1A73E8",
-          hover: "#155CBF",
+          DEFAULT: "#3B82F6", // Blue
+          hover: "#2563EB",
         },
-        textMuted: "#5F6368",
+        surface: "#FFFFFF",
+        surfaceMuted: "#F1F5F9", // Slate 100
+        background: "#F8FAFC", // Slate 50
+        border: "#E2E8F0", // Slate 200
+        text: "#0F172A", // Slate 900
+        textMuted: "#64748B", // Slate 500
       },
       fontFamily: {
-        display: ["'Space Grotesk'", "sans-serif"],
-        body: ["'Inter'", "sans-serif"],
+        sans: ["'Inter'", "sans-serif"],
+        display: ["'Inter'", "sans-serif"], // Reverting display to Inter
         mono: ["'IBM Plex Mono'", "monospace"],
       },
       boxShadow: {
-        'brutal': '4px 4px 0px var(--tw-shadow-color)',
-        'brutal-hover': '2px 2px 0px var(--tw-shadow-color)',
+        'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+        'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out forwards',

@@ -6,53 +6,53 @@ import { Button } from '../ui/Button';
 
 export const Layout: React.FC = () => {
   return (
-    <div className="min-h-screen text-ink p-4 md:p-8 font-body max-w-7xl mx-auto selection:bg-info selection:text-white">
+    <div className="min-h-screen bg-background text-text font-sans selection:bg-primary/20 selection:text-primary">
       
       {/* Navigation Bar */}
-      <nav className="bg-surface sticky top-4 z-50 p-4 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 border-[3px] border-ink shadow-brutal transition-all">
+      <nav className="bg-white sticky top-0 z-50 px-4 md:px-8 py-3 mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-border shadow-sm">
         <div className="flex items-center gap-3">
-          <span className="font-display text-xl font-black tracking-tight flex items-center gap-2 uppercase">
-            <div className="w-8 h-8 bg-ink flex items-center justify-center">
-              <Landmark className="w-5 h-5 text-surface" />
+          <span className="font-semibold text-lg tracking-tight flex items-center gap-2 text-text">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-sm text-white">
+              <Landmark className="w-5 h-5" />
             </div>
             CloudLens
           </span>
-          <Badge variant="ink" size="sm" className="font-mono tracking-wider opacity-80">v1.0</Badge>
+          <Badge variant="outline" size="sm" className="font-mono text-textMuted tracking-wider bg-slate-50">v1.0</Badge>
         </div>
         
         {/* Navigation Tabs */}
-        <div className="flex gap-1.5 p-1 bg-surfaceMuted border-2 border-ink shadow-brutal-hover">
+        <div className="flex gap-1 p-1 bg-slate-100/50 rounded-lg border border-slate-200">
           <NavLink to="/">
             {({ isActive }) => (
-              <Button variant={isActive ? 'primary' : 'ghost'} size="sm">Dashboard</Button>
+              <Button variant={isActive ? 'secondary' : 'ghost'} size="sm" className={isActive ? 'bg-white shadow-sm' : ''}>Dashboard</Button>
             )}
           </NavLink>
           <NavLink to="/recommendations">
             {({ isActive }) => (
-              <Button variant={isActive ? 'primary' : 'ghost'} size="sm">Recommendations</Button>
+              <Button variant={isActive ? 'secondary' : 'ghost'} size="sm" className={isActive ? 'bg-white shadow-sm' : ''}>Recommendations</Button>
             )}
           </NavLink>
           <NavLink to="/resources">
             {({ isActive }) => (
-              <Button variant={isActive ? 'primary' : 'ghost'} size="sm">Resources</Button>
+              <Button variant={isActive ? 'secondary' : 'ghost'} size="sm" className={isActive ? 'bg-white shadow-sm' : ''}>Resources</Button>
             )}
           </NavLink>
           <NavLink to="/teams">
             {({ isActive }) => (
-              <Button variant={isActive ? 'primary' : 'ghost'} size="sm">Leaderboard</Button>
+              <Button variant={isActive ? 'secondary' : 'ghost'} size="sm" className={isActive ? 'bg-white shadow-sm' : ''}>Leaderboard</Button>
             )}
           </NavLink>
         </div>
 
         <div className="flex items-center gap-3">
-          <Badge variant="warning" className="font-mono text-xs shadow-brutal-hover">Priya (FinOps)</Badge>
-          <Button variant="secondary" size="sm" className="p-2 w-9 h-9" isPill={false}>
-            <RefreshCw className="w-4 h-4 text-ink" />
+          <Badge variant="primary" className="font-medium text-xs">Priya (FinOps)</Badge>
+          <Button variant="ghost" size="sm" className="p-2 w-9 h-9 text-textMuted hover:text-text">
+            <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
       </nav>
 
-      <main className="animate-fade-in">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 pb-12 animate-fade-in">
         <Outlet />
       </main>
     </div>

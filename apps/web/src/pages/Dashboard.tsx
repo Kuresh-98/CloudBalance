@@ -23,12 +23,12 @@ const weeklyCostData = [
   { week: 'W12', cost: 720 },
 ];
 
-const BrutalTooltip = ({ active, payload, label }: any) => {
+const PremiumTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-surface border-2 border-ink p-3 shadow-brutal">
-        <p className="font-bold text-ink uppercase mb-1">{label}</p>
-        <p className="font-mono text-info font-bold">${payload[0].value.toFixed(2)}</p>
+      <div className="bg-white border border-slate-200 p-3 shadow-lg rounded-lg">
+        <p className="font-medium text-slate-500 text-sm mb-1">{label}</p>
+        <p className="font-mono text-primary font-bold text-lg">${payload[0].value.toFixed(2)}</p>
       </div>
     );
   }
@@ -41,7 +41,7 @@ export const Dashboard: React.FC = () => {
       {/* 2. Headline Summary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         
-        <div className="md:col-span-1 h-full pt-4">
+        <div className="md:col-span-1 h-full pt-1">
           <SavingsTicket 
             title="Idle RDS Database"
             rationale="Found 33 unresolved issues including idle databases and unattached volumes."
@@ -50,33 +50,33 @@ export const Dashboard: React.FC = () => {
           />
         </div>
 
-        <Card className="h-full flex flex-col justify-between group bg-surface">
+        <Card className="h-full flex flex-col justify-between group">
           <div>
-            <CardHeader className="pb-2 border-b-0 mb-0">
-              <span className="font-mono text-[10px] text-ink uppercase font-bold tracking-widest bg-info text-white px-2 py-1 w-fit border-2 border-ink">Monthly Runrate</span>
-              <CardTitle className="text-3xl font-display mt-2 text-ink uppercase">Total Spend</CardTitle>
+            <CardHeader className="pb-2">
+              <span className="text-xs text-primary font-semibold tracking-wider uppercase mb-1">Monthly Runrate</span>
+              <CardTitle className="text-2xl text-text">Total Spend</CardTitle>
             </CardHeader>
             <CardContent className="mt-2">
-              <div className="text-5xl font-mono font-bold tracking-tight text-ink group-hover:text-info transition-colors">$7,088.01</div>
-              <div className="flex items-center gap-1.5 text-alert font-bold mt-4 text-sm bg-surface border-2 border-ink w-fit px-2.5 py-1 shadow-brutal-hover">
-                <TrendingUp className="w-5 h-5 stroke-[3px]" />
-                <span className="uppercase tracking-wider">+12.4% vs last month</span>
+              <div className="text-4xl font-mono font-bold tracking-tight text-text">$7,088.01</div>
+              <div className="flex items-center gap-1.5 text-alert font-medium mt-4 text-sm bg-red-50 rounded-full w-fit px-3 py-1 border border-red-100">
+                <TrendingUp className="w-4 h-4" />
+                <span>+12.4% vs last month</span>
               </div>
             </CardContent>
           </div>
         </Card>
 
-        <Card className="h-full flex flex-col justify-between group bg-surface">
+        <Card className="h-full flex flex-col justify-between group">
           <div>
-            <CardHeader className="pb-2 border-b-0 mb-0">
-              <span className="font-mono text-[10px] text-ink uppercase font-bold tracking-widest bg-savings text-white px-2 py-1 w-fit border-2 border-ink">Infrastructure</span>
-              <CardTitle className="text-3xl font-display mt-2 text-ink uppercase">Active Assets</CardTitle>
+            <CardHeader className="pb-2">
+              <span className="text-xs text-savings font-semibold tracking-wider uppercase mb-1">Infrastructure</span>
+              <CardTitle className="text-2xl text-text">Active Assets</CardTitle>
             </CardHeader>
             <CardContent className="mt-2">
-              <div className="text-5xl font-mono font-bold tracking-tight text-ink group-hover:text-savings transition-colors">50 Units</div>
-              <div className="flex items-center gap-1.5 text-savings font-bold mt-4 text-sm bg-surface border-2 border-ink w-fit px-2.5 py-1 shadow-brutal-hover">
-                <Shield className="w-5 h-5 stroke-[3px]" />
-                <span className="uppercase tracking-wider">17 optimized (34%)</span>
+              <div className="text-4xl font-mono font-bold tracking-tight text-text">50 Units</div>
+              <div className="flex items-center gap-1.5 text-savings font-medium mt-4 text-sm bg-emerald-50 rounded-full w-fit px-3 py-1 border border-emerald-100">
+                <Shield className="w-4 h-4" />
+                <span>17 optimized (34%)</span>
               </div>
             </CardContent>
           </div>
@@ -89,38 +89,38 @@ export const Dashboard: React.FC = () => {
         {/* Left Columns */}
         <div className="lg:col-span-2 space-y-8">
           <Card>
-            <CardHeader className="pb-4 mb-4 flex flex-col sm:flex-row justify-between sm:items-center border-b-2 border-ink">
+            <CardHeader className="pb-4 mb-4 flex flex-col sm:flex-row justify-between sm:items-center border-b border-border">
               <div>
-                <CardTitle className="text-xl uppercase">Weekly Cost Trend</CardTitle>
-                <CardDescription className="text-ink font-bold uppercase mt-1">Infrastructure cost growth over 12 weeks</CardDescription>
+                <CardTitle className="text-xl">Weekly Cost Trend</CardTitle>
+                <CardDescription className="mt-1">Infrastructure cost growth over 12 weeks</CardDescription>
               </div>
-              <Badge variant="ink" className="w-fit mt-2 sm:mt-0">Trailing 90 Days</Badge>
+              <Badge variant="outline" className="w-fit mt-2 sm:mt-0 font-medium">Trailing 90 Days</Badge>
             </CardHeader>
             <CardContent>
               <div className="h-72 w-full mt-6">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyCostData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="0" vertical={false} stroke="#0A0A0A" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                     <XAxis 
                       dataKey="week" 
-                      tick={{ fill: '#0A0A0A', fontSize: 12, fontWeight: 'bold' }}
-                      axisLine={{ stroke: '#0A0A0A', strokeWidth: 2 }}
-                      tickLine={{ stroke: '#0A0A0A', strokeWidth: 2 }}
+                      tick={{ fill: '#64748B', fontSize: 12 }}
+                      axisLine={{ stroke: '#E2E8F0' }}
+                      tickLine={false}
+                      dy={10}
                     />
                     <YAxis 
-                      tick={{ fill: '#0A0A0A', fontSize: 12, fontWeight: 'bold' }}
-                      axisLine={{ stroke: '#0A0A0A', strokeWidth: 2 }}
-                      tickLine={{ stroke: '#0A0A0A', strokeWidth: 2 }}
+                      tick={{ fill: '#64748B', fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
                       tickFormatter={(value) => `$${value}`}
+                      dx={-10}
                     />
-                    <Tooltip content={<BrutalTooltip />} cursor={{ fill: '#FAFAF7', stroke: '#0A0A0A', strokeWidth: 2 }} />
+                    <Tooltip content={<PremiumTooltip />} cursor={{ fill: '#F8FAFC' }} />
                     <Bar 
                       dataKey="cost" 
-                      fill="#1A73E8" 
-                      stroke="#0A0A0A"
-                      strokeWidth={2}
-                      radius={[0, 0, 0, 0]}
-                      maxBarSize={40}
+                      fill="#2563EB" 
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={48}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -129,13 +129,13 @@ export const Dashboard: React.FC = () => {
           </Card>
 
           <Card>
-            <CardHeader className="pb-4 mb-4 flex flex-row items-center justify-between border-b-2 border-ink">
+            <CardHeader className="pb-4 mb-4 flex flex-row items-center justify-between border-b border-border">
               <div>
-                <CardTitle className="text-xl uppercase">Top Savings Actions</CardTitle>
-                <CardDescription className="text-ink font-bold uppercase mt-1">Highest dollar impact recommendations</CardDescription>
+                <CardTitle className="text-xl">Top Savings Actions</CardTitle>
+                <CardDescription className="mt-1">Highest dollar impact recommendations</CardDescription>
               </div>
-              <Button variant="ghost" size="sm" className="text-info border-none">
-                View All <ArrowRight className="w-5 h-5 ml-1 stroke-[3px]" />
+              <Button variant="ghost" size="sm" className="text-primary hover:text-primary-hover">
+                View All <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </CardHeader>
             <CardContent>
@@ -151,10 +151,10 @@ export const Dashboard: React.FC = () => {
                   <TableBody>
                     <TableRow className="group">
                       <TableCell>
-                        <div className="font-bold text-ink uppercase group-hover:text-info transition-colors">Terminate Idle RDS Database</div>
-                        <div className="text-xs font-mono font-bold mt-1 bg-surfaceMuted w-fit px-1 border border-ink">db-0idlerds01xyz (db.m5.xlarge)</div>
+                        <div className="font-semibold text-text group-hover:text-primary transition-colors">Terminate Idle RDS Database</div>
+                        <div className="text-xs font-mono text-textMuted mt-1">db-0idlerds01xyz (db.m5.xlarge)</div>
                       </TableCell>
-                      <TableCell isNumeric className="font-bold text-savings text-lg">$360.00</TableCell>
+                      <TableCell isNumeric className="font-semibold text-savings text-base">$360.00</TableCell>
                       <TableCell className="text-right">
                         <Button variant="savings" size="sm">Apply</Button>
                       </TableCell>
@@ -162,10 +162,10 @@ export const Dashboard: React.FC = () => {
                     
                     <TableRow className="group">
                       <TableCell>
-                        <div className="font-bold text-ink uppercase group-hover:text-info transition-colors">Delete Unattached EBS Volume</div>
-                        <div className="text-xs font-mono font-bold mt-1 bg-surfaceMuted w-fit px-1 border border-ink">vol-0unattached02 (io2 500GB)</div>
+                        <div className="font-semibold text-text group-hover:text-primary transition-colors">Delete Unattached EBS Volume</div>
+                        <div className="text-xs font-mono text-textMuted mt-1">vol-0unattached02 (io2 500GB)</div>
                       </TableCell>
-                      <TableCell isNumeric className="font-bold text-savings text-lg">$125.00</TableCell>
+                      <TableCell isNumeric className="font-semibold text-savings text-base">$125.00</TableCell>
                       <TableCell className="text-right">
                         <Button variant="savings" size="sm">Apply</Button>
                       </TableCell>
@@ -180,36 +180,36 @@ export const Dashboard: React.FC = () => {
         {/* Right Column */}
         <div className="space-y-8">
           <Card>
-            <CardHeader className="pb-4 mb-4 border-b-2 border-ink">
-              <CardTitle className="text-xl uppercase">Team Efficiency</CardTitle>
-              <CardDescription className="text-ink font-bold uppercase mt-1">Ranking teams by spending waste</CardDescription>
+            <CardHeader className="pb-4 mb-4 border-b border-border">
+              <CardTitle className="text-xl">Team Efficiency</CardTitle>
+              <CardDescription className="mt-1">Ranking teams by spending waste</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 
-                <div className="p-4 bg-surface border-2 border-ink flex items-center justify-between hover:bg-surfaceMuted transition-colors shadow-brutal-hover">
+                <div className="p-4 bg-white border border-border rounded-xl flex items-center justify-between hover:border-slate-300 transition-colors shadow-sm">
                   <div className="flex items-center gap-3">
-                    <span className="font-display font-black text-xl text-savings w-6">1</span>
+                    <span className="font-semibold text-lg text-slate-400 w-4">1</span>
                     <div>
-                      <div className="font-bold text-base uppercase flex items-center gap-2 text-ink">
-                        <Shield className="w-5 h-5 text-savings stroke-[3px]" />
+                      <div className="font-semibold text-sm text-text flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-savings" />
                         Security
                       </div>
-                      <div className="text-xs font-mono font-bold mt-1 bg-surfaceMuted px-1 border border-ink w-fit">Spend: $120.50</div>
+                      <div className="text-xs font-mono text-textMuted mt-1">Spend: $120.50</div>
                     </div>
                   </div>
                   <Badge variant="savings" size="sm">100%</Badge>
                 </div>
 
-                <div className="p-4 bg-surface border-2 border-ink flex items-center justify-between hover:bg-surfaceMuted transition-colors shadow-brutal-hover">
+                <div className="p-4 bg-white border border-border rounded-xl flex items-center justify-between hover:border-slate-300 transition-colors shadow-sm">
                   <div className="flex items-center gap-3">
-                    <span className="font-display font-black text-xl text-warning w-6">2</span>
+                    <span className="font-semibold text-lg text-slate-400 w-4">2</span>
                     <div>
-                      <div className="font-bold text-base uppercase flex items-center gap-2 text-ink">
-                        <HardHat className="w-5 h-5 text-warning stroke-[3px]" />
+                      <div className="font-semibold text-sm text-text flex items-center gap-2">
+                        <HardHat className="w-4 h-4 text-warning" />
                         Platform
                       </div>
-                      <div className="text-xs font-mono font-bold mt-1 bg-surfaceMuted px-1 border border-ink w-fit">Spend: $2,840.10</div>
+                      <div className="text-xs font-mono text-textMuted mt-1">Spend: $2,840.10</div>
                     </div>
                   </div>
                   <Badge variant="warning" size="sm">68.5%</Badge>
