@@ -1,14 +1,22 @@
-import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Router } from "express";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const router = Router();
 const prisma = new PrismaClient();
 
+function parseMonthlyBudget(value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  return new Prisma.Decimal(value as string | number);
+}
+
 // GET /teams
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const teams = await prisma.team.findMany({
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     });
     res.json(teams);
   } catch (error) {
@@ -16,8 +24,33 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// POST /teams
+router.post("/", async (req, res, next) => {
+  try {
+    const { name, monthlyBudget } = req.body as {
+      name?: string;
+      monthlyBudget?: string | number | null;
+    };
+
+    if (!name?.trim()) {
+      return res.status(400).json({ error: "Team name is required" });
+    }
+
+    const team = await prisma.team.create({
+      data: {
+        name: name.trim(),
+        monthlyBudget: parseMonthlyBudget(monthlyBudget),
+      },
+    });
+
+    res.status(201).json(team);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /teams/leaderboard
-router.get('/leaderboard', async (req, res, next) => {
+router.get("/leaderboard", async (req, res, next) => {
   try {
     const now = new Date();
     const last30Days = new Date();
@@ -35,7 +68,7 @@ router.get('/leaderboard', async (req, res, next) => {
             },
             recommendations: {
               where: {
-                status: 'open',
+                status: "open",
               },
             },
           },
@@ -62,9 +95,16 @@ router.get('/leaderboard', async (req, res, next) => {
       }
 
       // Cost efficiency score: 100% is perfect (0 savings opportunity), drops as waste increases
-      const efficiencyScore = totalSpend30d > 0
-        ? Math.max(0, Math.min(100, (1 - (potentialMonthlySavings / totalSpend30d)) * 100))
-        : 100; // if spend is 0, they are 100% efficient
+      const efficiencyScore =
+        totalSpend30d > 0
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                (1 - potentialMonthlySavings / totalSpend30d) * 100,
+              ),
+            )
+          : 100; // if spend is 0, they are 100% efficient
 
       return {
         id: team.id,
@@ -82,6 +122,73 @@ router.get('/leaderboard', async (req, res, next) => {
 
     res.json(leaderboard);
   } catch (error) {
+    next(error);
+  }
+});
+
+// GET /teams/:id
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const team = await prisma.team.findUnique({
+      where: { id },
+      include: {
+        resources: true,
+      },
+    });
+
+    if (!team) {
+      return res.status(404).json({ error: "Team not found" });
+    }
+
+    res.json(team);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /teams/:id
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, monthlyBudget } = req.body as {
+      name?: string;
+      monthlyBudget?: string | number | null;
+    };
+
+    const team = await prisma.team.update({
+      where: { id },
+      data: {
+        ...(name !== undefined ? { name: name.trim() } : {}),
+        ...(monthlyBudget !== undefined
+          ? { monthlyBudget: parseMonthlyBudget(monthlyBudget) }
+          : {}),
+      },
+    });
+
+    res.json(team);
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Team not found" });
+    }
+
+    next(error);
+  }
+});
+
+// DELETE /teams/:id
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.team.delete({ where: { id } });
+
+    res.status(204).send();
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Team not found" });
+    }
+
     next(error);
   }
 });

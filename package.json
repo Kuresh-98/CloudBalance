@@ -6,10 +6,16 @@
     "apps/*"
   ],
   "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
     "api:dev": "npm run dev --workspace=apps/api",
     "api:build": "npm run build --workspace=apps/api",
     "api:seed": "npm run seed --workspace=apps/api",
     "web:dev": "npm run dev --workspace=apps/web",
-    "web:build": "npm run build --workspace=apps/web"
+    "web:build": "npm run build --workspace=apps/web",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/web",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:generate": "npm run db:generate --workspace=apps/api",
+    "seed": "npm run seed --workspace=apps/api"
   }
 }
