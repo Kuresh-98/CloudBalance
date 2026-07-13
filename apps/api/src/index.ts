@@ -9,6 +9,8 @@ import resourcesRouter from './routes/resources';
 import recommendationsRouter from './routes/recommendations';
 import teamsRouter from './routes/teams';
 import devRouter from './routes/dev';
+import authRouter from './routes/auth';
+import { requireAuth } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -22,10 +24,11 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Mount routes
-app.use('/api/costs', costsRouter);
-app.use('/api/resources', resourcesRouter);
-app.use('/api/recommendations', recommendationsRouter);
-app.use('/api/teams', teamsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/costs', requireAuth, costsRouter);
+app.use('/api/resources', requireAuth, resourcesRouter);
+app.use('/api/recommendations', requireAuth, recommendationsRouter);
+app.use('/api/teams', requireAuth, teamsRouter);
 app.use('/api/dev', devRouter);
 
 // Liveness health check

@@ -8,7 +8,8 @@ import {
   Server, 
   Trophy, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  LogOut
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -20,10 +21,12 @@ const NAV_ITEMS = [
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { useAppState } from "../../lib/appState";
+import { useAuth } from "../../lib/AuthContext";
 
 export const Layout: React.FC = () => {
   const { role, setRole, activeTeamId, setActiveTeamId, teams, refreshTeams } =
     useAppState();
+  const { user, logout } = useAuth();
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -120,6 +123,25 @@ export const Layout: React.FC = () => {
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
+
+            <div className="h-4 w-px bg-border mx-1"></div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-textMuted hidden md:inline">
+                Logged in as: <span className="font-semibold text-text">{user?.name || user?.email}</span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="p-2 text-textMuted hover:text-alert flex items-center gap-1.5 focus:outline-none"
+                onClick={logout}
+                title="Log Out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
           </div>
         </header>
 

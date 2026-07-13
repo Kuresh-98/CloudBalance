@@ -3,11 +3,18 @@ const apiBaseUrl = (
 ).replace(/\/$/, "");
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = window.localStorage.getItem("cloudlens-auth-token");
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(init?.headers || {}),
+  };
+
+  if (token) {
+    (headers as any)["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
+    headers,
     ...init,
   });
 
@@ -341,3 +348,22 @@ export async function fetchDashboardHealth(teamId?: string): Promise<DashboardHe
     recommendationList: recommendations.recommendations,
   };
 }
+
+export async function loginUser(email: string, password: string) {
+  return requestJson<{ token: string; user: { id: string; email: string; name: string } }>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function registerUser(email: string, password: string, name?: string) {
+  return requestJson<{ token: string; user: { id: string; email: string; name: string } }>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password, name }),
+  });
+}
+
+export async function fetchCurrentUser() {
+  return requestJson<{ user: { id: string; email: string; name: string } }>("/api/auth/me");
+}
+

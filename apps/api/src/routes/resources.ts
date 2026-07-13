@@ -37,6 +37,7 @@ function parseTags(tags: unknown): Prisma.InputJsonValue | undefined {
 // GET /resources?team=&service=&status=&search=&page=&limit=
 router.get("/", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const teamId = req.query.team as string | undefined;
     const service = req.query.service as string | undefined;
     const status = req.query.status as string | undefined;
@@ -50,8 +51,18 @@ router.get("/", async (req, res, next) => {
     const whereClause: any = {};
 
     if (teamId) {
+      // Verify team belongs to user
+      const checkTeam = await prisma.team.findFirst({
+        where: { id: teamId, userId },
+      });
+      if (!checkTeam) {
+        return res.status(404).json({ error: "Team not found" });
+      }
       whereClause.teamId = teamId;
+    } else {
+      whereClause.team = { userId };
     }
+
     if (service) {
       whereClause.service = service;
     }
@@ -128,6 +139,7 @@ router.get("/", async (req, res, next) => {
 // POST /resources
 router.post("/", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const {
       resourceUid,
       teamId,
@@ -160,9 +172,21 @@ router.post("/", async (req, res, next) => {
       });
     }
 
+    if (!teamId) {
+      return res.status(400).json({ error: "teamId is required for user isolation" });
+    }
+
+    // Verify team ownership
+    const checkTeam = await prisma.team.findFirst({
+      where: { id: teamId, userId },
+    });
+    if (!checkTeam) {
+      return res.status(404).json({ error: "Team not found" });
+    }
+
     const data: Prisma.ResourceUncheckedCreateInput = {
       resourceUid: resourceUid?.trim() || createResourceUid(service),
-      teamId: teamId ?? null,
+      teamId,
       service: service.trim(),
       region: region.trim(),
       instanceType: instanceType?.trim() || null,
@@ -226,9 +250,13 @@ router.post("/", async (req, res, next) => {
 // GET /resources/:id
 router.get("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const resource = await prisma.resource.findUnique({
-      where: { id },
+    const resource = await prisma.resource.findFirst({
+      where: {
+        id,
+        team: { userId },
+      },
       include: {
         team: true,
         recommendations: {
@@ -252,6 +280,7 @@ router.get("/:id", async (req, res, next) => {
 // PATCH /resources/:id
 router.patch("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const { resourceUid, teamId, service, region, instanceType, status, tags } =
       req.body as {
@@ -263,6 +292,23 @@ router.patch("/:id", async (req, res, next) => {
         status?: string;
         tags?: unknown;
       };
+
+    // Verify ownership of the resource
+    const checkRes = await prisma.resource.findFirst({
+      where: { id, team: { userId } },
+    });
+    if (!checkRes) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    if (teamId) {
+      const checkTeam = await prisma.team.findFirst({
+        where: { id: teamId, userId },
+      });
+      if (!checkTeam) {
+        return res.status(404).json({ error: "Target team not found" });
+      }
+    }
 
     const data: Prisma.ResourceUncheckedUpdateInput = {};
 
@@ -295,10 +341,6 @@ router.patch("/:id", async (req, res, next) => {
 
     res.json(resource);
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Resource not found" });
-    }
-
     next(error);
   }
 });
@@ -306,16 +348,21 @@ router.patch("/:id", async (req, res, next) => {
 // DELETE /resources/:id
 router.delete("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
+
+    // Verify ownership of the resource
+    const checkRes = await prisma.resource.findFirst({
+      where: { id, team: { userId } },
+    });
+    if (!checkRes) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
 
     await prisma.resource.delete({ where: { id } });
 
     res.status(204).send();
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Resource not found" });
-    }
-
     next(error);
   }
 });
@@ -323,7 +370,17 @@ router.delete("/:id", async (req, res, next) => {
 // GET /resources/:id/usage
 router.get("/:id/usage", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
+
+    // Verify ownership of the resource
+    const checkRes = await prisma.resource.findFirst({
+      where: { id, team: { userId } },
+    });
+    if (!checkRes) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
     const usage = await prisma.usageMetric.findMany({
       where: { resourceId: id },
       orderBy: { date: "asc" },

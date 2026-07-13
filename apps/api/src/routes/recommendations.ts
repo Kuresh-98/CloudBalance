@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 // GET /recommendations?status=open&type=&sort=savings&page=&limit=
 router.get("/", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const status = (req.query.status as string) || "open";
     const type = req.query.type as string | undefined;
     const sort = req.query.sort as string | undefined;
@@ -16,15 +17,19 @@ router.get("/", async (req, res, next) => {
     const limit = parseInt((req.query.limit as string) || "20");
     const skip = (page - 1) * limit;
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      resource: {
+        team: {
+          userId,
+          ...(teamId ? { id: teamId } : {}),
+        },
+      },
+    };
     if (status !== "all") {
       whereClause.status = status;
     }
     if (type) {
       whereClause.type = type;
-    }
-    if (teamId) {
-      whereClause.resource = { teamId };
     }
 
     // Determine sorting
@@ -104,6 +109,16 @@ router.post("/", async (req, res, next) => {
         });
     }
 
+    const userId = (req as any).user.id;
+    if (resourceId) {
+      const checkRes = await prisma.resource.findFirst({
+        where: { id: resourceId, team: { userId } },
+      });
+      if (!checkRes) {
+        return res.status(404).json({ error: "Resource not found" });
+      }
+    }
+
     const recommendation = await prisma.recommendation.create({
       data: {
         resourceId: resourceId ?? null,
@@ -125,9 +140,13 @@ router.post("/", async (req, res, next) => {
 // GET /recommendations/summary
 router.get("/summary", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const aggregations = await prisma.recommendation.aggregate({
       where: {
         status: "open",
+        resource: {
+          team: { userId },
+        },
       },
       _sum: {
         estimatedMonthlySavings: true,
@@ -151,9 +170,15 @@ router.get("/summary", async (req, res, next) => {
 // GET /recommendations/:id
 router.get("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const recommendation = await prisma.recommendation.findUnique({
-      where: { id },
+    const recommendation = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
       include: {
         resource: {
           include: {
@@ -176,6 +201,7 @@ router.get("/:id", async (req, res, next) => {
 // PATCH /recommendations/:id
 router.patch("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const {
       resourceId,
@@ -195,6 +221,28 @@ router.patch("/:id", async (req, res, next) => {
       status?: string | null;
     };
 
+    // Verify ownership
+    const checkRec = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
+    if (!checkRec) {
+      return res.status(404).json({ error: "Recommendation not found" });
+    }
+
+    if (resourceId) {
+      const checkRes = await prisma.resource.findFirst({
+        where: { id: resourceId, team: { userId } },
+      });
+      if (!checkRes) {
+        return res.status(404).json({ error: "Target resource not found" });
+      }
+    }
+
     const recommendation = await prisma.recommendation.update({
       where: { id },
       data: {
@@ -212,10 +260,6 @@ router.patch("/:id", async (req, res, next) => {
 
     res.json(recommendation);
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Recommendation not found" });
-    }
-
     next(error);
   }
 });
@@ -223,16 +267,26 @@ router.patch("/:id", async (req, res, next) => {
 // DELETE /recommendations/:id
 router.delete("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
+
+    // Verify ownership
+    const checkRec = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
+    if (!checkRec) {
+      return res.status(404).json({ error: "Recommendation not found" });
+    }
 
     await prisma.recommendation.delete({ where: { id } });
 
     res.status(204).send();
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Recommendation not found" });
-    }
-
     next(error);
   }
 });
@@ -240,8 +294,16 @@ router.delete("/:id", async (req, res, next) => {
 // POST /recommendations/:id/apply
 router.post("/:id/apply", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const rec = await prisma.recommendation.findUnique({ where: { id } });
+    const rec = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
 
     if (!rec) {
       return res.status(404).json({ error: "Recommendation not found" });
@@ -285,8 +347,16 @@ router.post("/:id/apply", async (req, res, next) => {
 // POST /recommendations/:id/reopen
 router.post("/:id/reopen", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const rec = await prisma.recommendation.findUnique({ where: { id } });
+    const rec = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
 
     if (!rec) {
       return res.status(404).json({ error: "Recommendation not found" });
@@ -306,8 +376,16 @@ router.post("/:id/reopen", async (req, res, next) => {
 // POST /recommendations/:id/dismiss
 router.post("/:id/dismiss", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const rec = await prisma.recommendation.findUnique({ where: { id } });
+    const rec = await prisma.recommendation.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
 
     if (!rec) {
       return res.status(404).json({ error: "Recommendation not found" });

@@ -20,7 +20,7 @@ import {
 import { useAppState } from "../lib/appState";
 
 export const Leaderboard: React.FC = () => {
-  const { role } = useAppState();
+  const { role, refreshTeams } = useAppState();
   const [leaderboard, setLeaderboard] = useState<Team[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +82,7 @@ export const Leaderboard: React.FC = () => {
       }
 
       await loadData();
+      await refreshTeams();
       resetForm();
     } catch (caughtError) {
       setError(
@@ -105,6 +106,7 @@ export const Leaderboard: React.FC = () => {
   const handleDelete = async (id: string) => {
     await deleteTeam(id);
     await loadData();
+    await refreshTeams();
   };
 
   return (

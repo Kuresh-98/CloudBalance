@@ -23,10 +23,16 @@ router.get("/summary", async (req, res, next) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - rangeDays);
 
+    const userId = (req as any).user.id;
     const records = await prisma.costRecord.findMany({
       where: {
         date: { gte: startDate },
-        ...(teamId ? { resource: { teamId } } : {}),
+        resource: {
+          team: {
+            userId,
+            ...(teamId ? { id: teamId } : {}),
+          },
+        },
       },
       include: {
         resource: {
@@ -71,10 +77,16 @@ router.get("/trend", async (req, res, next) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - rangeDays);
 
+    const userId = (req as any).user.id;
     const records = await prisma.costRecord.findMany({
       where: {
         date: { gte: startDate },
-        ...(teamId ? { resource: { teamId } } : {}),
+        resource: {
+          team: {
+            userId,
+            ...(teamId ? { id: teamId } : {}),
+          },
+        },
       },
     });
 
@@ -126,6 +138,16 @@ router.post("/", async (req, res, next) => {
         .json({ error: "date and unblendedCost are required" });
     }
 
+    const userId = (req as any).user.id;
+    if (resourceId) {
+      const resource = await prisma.resource.findFirst({
+        where: { id: resourceId, team: { userId } },
+      });
+      if (!resource) {
+        return res.status(404).json({ error: "Associated resource not found" });
+      }
+    }
+
     const cost = await prisma.costRecord.create({
       data: {
         resourceId: resourceId ?? null,
@@ -145,9 +167,15 @@ router.post("/", async (req, res, next) => {
 // GET /costs/:id
 router.get("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const cost = await prisma.costRecord.findUnique({
-      where: { id },
+    const cost = await prisma.costRecord.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
       include: {
         resource: {
           include: {
@@ -170,6 +198,7 @@ router.get("/:id", async (req, res, next) => {
 // PATCH /costs/:id
 router.patch("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const { resourceId, date, usageQuantity, unblendedCost, currency } =
       req.body as {
@@ -179,6 +208,28 @@ router.patch("/:id", async (req, res, next) => {
         unblendedCost?: string | number;
         currency?: string | null;
       };
+
+    // Check ownership of this cost record
+    const checkCost = await prisma.costRecord.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
+    if (!checkCost) {
+      return res.status(404).json({ error: "Cost record not found" });
+    }
+
+    if (resourceId) {
+      const checkRes = await prisma.resource.findFirst({
+        where: { id: resourceId, team: { userId } },
+      });
+      if (!checkRes) {
+        return res.status(404).json({ error: "Target resource not found" });
+      }
+    }
 
     const cost = await prisma.costRecord.update({
       where: { id },
@@ -195,10 +246,6 @@ router.patch("/:id", async (req, res, next) => {
 
     res.json(cost);
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Cost record not found" });
-    }
-
     next(error);
   }
 });
@@ -206,16 +253,26 @@ router.patch("/:id", async (req, res, next) => {
 // DELETE /costs/:id
 router.delete("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
+
+    // Check ownership of this cost record
+    const checkCost = await prisma.costRecord.findFirst({
+      where: {
+        id,
+        resource: {
+          team: { userId },
+        },
+      },
+    });
+    if (!checkCost) {
+      return res.status(404).json({ error: "Cost record not found" });
+    }
 
     await prisma.costRecord.delete({ where: { id } });
 
     res.status(204).send();
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Cost record not found" });
-    }
-
     next(error);
   }
 });

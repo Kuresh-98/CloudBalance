@@ -15,7 +15,9 @@ function parseMonthlyBudget(value: unknown) {
 // GET /teams
 router.get("/", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const teams = await prisma.team.findMany({
+      where: { userId },
       orderBy: { name: "asc" },
     });
     res.json(teams);
@@ -27,6 +29,7 @@ router.get("/", async (req, res, next) => {
 // POST /teams
 router.post("/", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { name, monthlyBudget } = req.body as {
       name?: string;
       monthlyBudget?: string | number | null;
@@ -39,6 +42,7 @@ router.post("/", async (req, res, next) => {
     const team = await prisma.team.create({
       data: {
         name: name.trim(),
+        userId,
         monthlyBudget: parseMonthlyBudget(monthlyBudget),
       },
     });
@@ -52,12 +56,14 @@ router.post("/", async (req, res, next) => {
 // GET /teams/leaderboard
 router.get("/leaderboard", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const now = new Date();
     const last30Days = new Date();
     last30Days.setDate(now.getDate() - 30);
 
-    // Fetch teams
+    // Fetch teams only for this user
     const teams = await prisma.team.findMany({
+      where: { userId },
       include: {
         resources: {
           include: {
@@ -129,9 +135,10 @@ router.get("/leaderboard", async (req, res, next) => {
 // GET /teams/:id
 router.get("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
-    const team = await prisma.team.findUnique({
-      where: { id },
+    const team = await prisma.team.findFirst({
+      where: { id, userId },
       include: {
         resources: true,
       },
@@ -150,11 +157,20 @@ router.get("/:id", async (req, res, next) => {
 // PATCH /teams/:id
 router.patch("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
     const { name, monthlyBudget } = req.body as {
       name?: string;
       monthlyBudget?: string | number | null;
     };
+
+    // Verify ownership
+    const checkTeam = await prisma.team.findFirst({
+      where: { id, userId },
+    });
+    if (!checkTeam) {
+      return res.status(404).json({ error: "Team not found" });
+    }
 
     const team = await prisma.team.update({
       where: { id },
@@ -168,10 +184,6 @@ router.patch("/:id", async (req, res, next) => {
 
     res.json(team);
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Team not found" });
-    }
-
     next(error);
   }
 });
@@ -179,16 +191,21 @@ router.patch("/:id", async (req, res, next) => {
 // DELETE /teams/:id
 router.delete("/:id", async (req, res, next) => {
   try {
+    const userId = (req as any).user.id;
     const { id } = req.params;
+
+    // Verify ownership
+    const checkTeam = await prisma.team.findFirst({
+      where: { id, userId },
+    });
+    if (!checkTeam) {
+      return res.status(404).json({ error: "Team not found" });
+    }
 
     await prisma.team.delete({ where: { id } });
 
     res.status(204).send();
   } catch (error: any) {
-    if (error?.code === "P2025") {
-      return res.status(404).json({ error: "Team not found" });
-    }
-
     next(error);
   }
 });

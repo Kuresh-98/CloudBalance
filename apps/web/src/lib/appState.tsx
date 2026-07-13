@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { fetchTeams, Team } from "./api";
+import { useAuth } from "./AuthContext";
 
 type AppRole = "viewer" | "admin";
 
@@ -26,6 +27,7 @@ const teamStorageKey = "cloudlens-team-id";
 export const AppStateProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
+  const { user } = useAuth();
   const [role, setRoleState] = useState<AppRole>(() => {
     const storedRole = window.localStorage.getItem(
       roleStorageKey,
@@ -57,8 +59,12 @@ export const AppStateProvider: React.FC<React.PropsWithChildren> = ({
   };
 
   useEffect(() => {
-    void refreshTeams();
-  }, []);
+    if (user) {
+      void refreshTeams();
+    } else {
+      setTeams([]);
+    }
+  }, [user]);
 
   useEffect(() => {
     window.localStorage.setItem(roleStorageKey, role);

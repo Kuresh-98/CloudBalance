@@ -10,9 +10,12 @@ generator client {
 model Team {
   id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
+  userId         String     @map("user_id") @db.Uuid
   monthlyBudget  Decimal?   @map("monthly_budget") @db.Decimal(12, 2)
   createdAt      DateTime?  @default(now()) @map("created_at") @db.Timestamptz
   resources      Resource[]
+
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teams")
 }
@@ -81,3 +84,15 @@ model Recommendation {
   @@index([status], map: "idx_recommendations_status")
   @@map("recommendations")
 }
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  teams     Team[]
+
+  @@map("users")
+}
+

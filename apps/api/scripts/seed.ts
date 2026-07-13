@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { runRecommendationEngine } from '../src/services/recommendationEngine';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -13,43 +14,12 @@ function formatDate(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
-async function main() {
-  console.log('🌱 Starting database seeding...');
-
-  // 1. Clear existing database tables in reverse order of foreign keys
-  console.log('🧹 Clearing existing data...');
-  await prisma.recommendation.deleteMany();
-  await prisma.costRecord.deleteMany();
-  await prisma.usageMetric.deleteMany();
-  await prisma.resource.deleteMany();
-  await prisma.team.deleteMany();
-
-  // 2. Create Teams
-  console.log('👥 Creating teams...');
-  const teamsData = [
-    { name: 'Platform', monthlyBudget: 18000.00 },
-    { name: 'Growth', monthlyBudget: 9000.00 },
-    { name: 'Data', monthlyBudget: 15000.00 },
-    { name: 'Mobile', monthlyBudget: 6000.00 },
-    { name: 'Security', monthlyBudget: 4000.00 },
-  ];
-
-  const teams: any[] = [];
-  for (const t of teamsData) {
-    const createdTeam = await prisma.team.create({
-      data: {
-        name: t.name,
-        monthlyBudget: new Prisma.Decimal(t.monthlyBudget),
-      },
-    });
-    teams.push(createdTeam);
-  }
-  console.log(`Created ${teams.length} teams.`);
+async function seedUserData(email: string, teams: any[]) {
 
   // 3. Define Resources config
   console.log('⚙️ Preparing resources...');
   const now = new Date();
-  
+
   // Date configuration
   const startDay = new Date();
   startDay.setDate(now.getDate() - 90); // 90 days ago
@@ -346,7 +316,7 @@ async function main() {
     const createdResource = await prisma.resource.create({
       data: {
         resourceUid: r.resourceUid,
-        teamId: r.isUntagged ? null : teams[r.teamIndex].id, // Untagged resources might not have team mapping
+        teamId: teams[r.teamIndex].id,
         service: r.service,
         region: r.region,
         instanceType: r.instanceType,
@@ -363,7 +333,7 @@ async function main() {
 
   // 4. Generate Cost Records and Usage Metrics for the trailing 90 days
   console.log('📊 Generating cost and usage records (90-day history)...');
-  
+
   const costRecordsToCreate: Prisma.CostRecordCreateManyInput[] = [];
   const usageMetricsToCreate: Prisma.UsageMetricCreateManyInput[] = [];
 
@@ -483,6 +453,60 @@ async function main() {
     const chunk = usageMetricsToCreate.slice(i, i + CHUNK_SIZE);
     await prisma.usageMetric.createMany({ data: chunk });
   }
+}
+
+async function main() {
+  console.log('🌱 Starting database seeding...');
+
+  // 1. Clear existing database tables in reverse order of foreign keys
+  console.log('🧹 Clearing existing data...');
+  await prisma.recommendation.deleteMany();
+  await prisma.costRecord.deleteMany();
+  await prisma.usageMetric.deleteMany();
+  await prisma.resource.deleteMany();
+  await prisma.team.deleteMany();
+  await prisma.user.deleteMany();
+
+  const hashedPassword = await bcrypt.hash('Password123!', 10);
+
+  const usersToSeed = [
+    { email: 'admin@cloudbalance.com', name: 'System Admin' },
+    { email: 'test@example.com', name: 'Test User' },
+  ];
+
+  for (const u of usersToSeed) {
+    console.log(`👤 Seeding user: ${u.email}`);
+    const createdUser = await prisma.user.create({
+      data: {
+        email: u.email,
+        password: hashedPassword,
+        name: u.name,
+      },
+    });
+
+    console.log(`👥 Creating teams for ${u.email}...`);
+    const teamsData = [
+      { name: 'Platform', monthlyBudget: 18000.00 },
+      { name: 'Growth', monthlyBudget: 9000.00 },
+      { name: 'Data', monthlyBudget: 15000.00 },
+      { name: 'Mobile', monthlyBudget: 6000.00 },
+      { name: 'Security', monthlyBudget: 4000.00 },
+    ];
+
+    const teams: any[] = [];
+    for (const t of teamsData) {
+      const createdTeam = await prisma.team.create({
+        data: {
+          name: t.name,
+          monthlyBudget: new Prisma.Decimal(t.monthlyBudget),
+          userId: createdUser.id,
+        },
+      });
+      teams.push(createdTeam);
+    }
+
+    await seedUserData(u.email, teams);
+  }
 
   // 5. Run Recommendation Engine
   console.log('🧠 Running recommendation rules engine to analyze seeded data...');
@@ -493,13 +517,13 @@ async function main() {
   console.log('\n======================================================');
   console.log('✅ DATABASE SEEDING COMPLETED SUCCESSFULLY!');
   console.log('======================================================');
-  
+
   const totalTeams = await prisma.team.count();
   const totalResources = await prisma.resource.count();
   const totalCosts = await prisma.costRecord.count();
   const totalUsages = await prisma.usageMetric.count();
   const openRecommendations = await prisma.recommendation.count({ where: { status: 'open' } });
-  
+
   // Calculate total monthly spend (last 30 days)
   const last30Days = new Date();
   last30Days.setDate(last30Days.getDate() - 30);
